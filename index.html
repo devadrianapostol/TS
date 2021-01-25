@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>Tehnici de simulare</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+</head>
+<body >
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Tehnici de Simulare</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-source="normal.html" href="normal.html">Normala(0.2,3)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-source="poisson.html" href="poisson.html">Poisson</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<div class=" main" style="min-height: 80%;height: 300px;">
+
+</div>
+
+<footer id="footer" class="footer-1 bg-dark">
+    <div class="main-footer text-light">
+        <div class="container">
+            <div class="row">
+
+                <div class="col-xs-12 col-sm-6 col-md-3">
+                    <div class="widget subscribe no-box  text-light">
+                        <h5 class="widget-title">Adrian Apostol<span></span></h5>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function(){
+
+        $(".nav-link").click(async  function(ev){
+           let f = $(ev.target).attr("data-source");
+           $(".main").load(f);
+        });
+    });
+
+</script>
+</body>
+</html>
