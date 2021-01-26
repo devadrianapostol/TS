@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 </head>
 <body >
 <header>
@@ -28,69 +31,84 @@
     </nav>
 </header>
 <div class="main container" style="min-height: 80%;">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="mt-4 border bg-light p-2">
+                <div >Media empirica selectie: <span id="mediaESelectie" style="font-weight: bold"></span> </div>
+                <div >Dispersia empirica selectie: <span id="dispersiaESelectie" style="font-weight: bold"></span></div>
+                <div>nr de variabile = <span id="nrdevariabile" style="font-weight: bold"></span></div>
+            </div>
+            <div class="bg-light border p-2 mb-4 mt-4"><strong>Frecventele Poisson generate:</strong> :
+                <div id="rezultat">
 
-    <div class="mt-4">
-        <h3 class="">Poisson</h3>
-        <figure class="highcharts-figure">
-            <div id="container"></div>
-        </figure>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="mt-4">
+                <h3 class="">Poisson</h3>
+                <figure class="highcharts-figure">
+                    <div id="container"></div>
+                </figure>
+            </div>
+
+            <div class=" mb-4">
+                <div class="mb-4">
+                    <h6>Alege algoritm</h6>
+                    <select id="selectPoisson" class="">
+                        <option value="poisson1">Poisson 1</option>
+                        <option value="poisson2">Poisson 2</option>
+                    </select>
+                </div>
+
+                <div class="poisson1 algoritm" >
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Lambda</span>
+                        </div>
+                        <input type="number" id="lambda1" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="0">
+                    </div>
+                    <div class="mt-4 mb-4">
+                        <h5>Algoritm Poisson1</h5>
+                        <br>Intrare: λ,i:= 0,P= 1;
+
+                        <br>P1:  Se genereaza U∼U(0,1), i:=i+ 1,P:=P∗U;
+                        <br>P2:  Daca P≥e^−λ atunci mergi la P1, altfel mergi la P3;
+                        <br>P3:X:=i−1.
+
+                        <br>Iesire:Variabila aleatoare X.
+                    </div>
+                </div>
+                <div class="poisson2 algoritm" >
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Lambda</span>
+                        </div>
+                        <input type="number" id="lambda2" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="0">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">P=</span>
+                        </div>
+                        <input type="number" id="p" class="form-control" aria-label="p" aria-describedby="basic-addon1" value="0.001">
+                    </div>
+                    <div class="mt-4 mb-4">
+                        <h5>Algoritm Poisson2</h5>
+                        <br>Intrare: λ, se alege p≈0, de exemplu p= 0.001;
+                        <br>P1: Se determina n= cel mai apropiat ıntreg de λ/p;
+                        <br>P2:  Se genereaza X∼Binom(n,p);
+                        <br>Iesire: Variabila aleatoare X
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="genereaza" type="button">Calculeaza</button>
+
+
+            </div>
+        </div>
     </div>
 
-    <div class="col-12 mb-4">
-        <div class="mb-4">
-            <h6>Alege algoritm</h6>
-            <select id="selectPoisson" class="">
-                <option value="poisson1">Poisson 1</option>
-                <option value="poisson2">Poisson 2</option>
-            </select>
-        </div>
 
-        <div class="poisson1 algoritm" >
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Lambda</span>
-                </div>
-                <input type="number" id="lambda1" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="0">
-            </div>
-            <div class="mt-4 mb-4">
-                <h5>Algoritm Poisson1</h5>
-                <br>Intrare: λ,i:= 0,P= 1;
-
-                <br>P1:  Se genereaza U∼U(0,1), i:=i+ 1,P:=P∗U;
-                <br>P2:  Daca P≥e^−λ atunci mergi la P1, altfel mergi la P3;
-                <br>P3:X:=i−1.
-
-                <br>Iesire:Variabila aleatoare X.
-            </div>
-        </div>
-        <div class="poisson2 algoritm" >
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Lambda</span>
-                </div>
-                <input type="number" id="lambda2" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="0">
-            </div>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">P=</span>
-                </div>
-                <input type="number" id="p" class="form-control" aria-label="p" aria-describedby="basic-addon1" value="0.001">
-            </div>
-            <div class="mt-4 mb-4">
-                <h5>Algoritm Poisson2</h5>
-                <br>Intrare: λ, se alege p≈0, de exemplu p= 0.001;
-                <br>P1: Se determina n= cel mai apropiat ıntreg de λ/p;
-                <br>P2:  Se genereaza X∼Binom(n,p);
-                <br>Iesire: Variabila aleatoare X
-            </div>
-        </div>
-
-        <button class="btn btn-primary" id="genereaza" type="button">Calculeaza</button>
-
-        <div id="rezultat">
-
-        </div>
-    </div>
 </div>
 
 <footer id="footer" class="footer-1 bg-dark">
@@ -113,11 +131,12 @@
 <script>
     $(document).ready(function(){
         function genereaza(l, algoritm, p){
-            let n = 1000;
+            let numarVariabile = 1000;
             let step = 1;
-            let max = 10;
+            let max = 15;
             let min = 0;
             let data = {};
+            let dataMediaEmpirica = [];
 
             const round_to_precision = (x, precision) => {
                 var y = +x + (precision === undefined ? 0.5 : precision/2);
@@ -131,7 +150,7 @@
                 let L = Math.pow(Math.E, -lambda);
                 //P1:  Se genereaza U∼U(0,1), i:=i+ 1,P:=P∗U;
                 //P2:  Daca P≥e^−λ atunci mergi la P1, altfel mergi la P3
-                let U = Math.random();
+                //let U = Math.random();
                 do {
                     i += 1;
                     U = Math.random();
@@ -196,22 +215,23 @@
             }
 
             // Create n samples between min and max
-            for (i=0; i<n; i+=step) {
+            for (i=0; i<numarVariabile; i+=step) {
                 let rand_num = 0;
                 if(algoritm === "poisson1"){
-                    rand_num = poisson1(l, 0, 1);
+                    rand_num = poisson1( l);// Translate to 0 -> 1
                 } else if(algoritm === "poisson2") {
                     rand_num = poisson2(l, p);
                 } else {
                     continue;
                 }
+                dataMediaEmpirica.push(rand_num);
                 let rounded = round_to_precision(rand_num, step);
                 data[rounded] += 1;
             }
 
             let hc_data = [];
             for (const [key, val] of Object.entries(data)) {
-                hc_data.push({"x": parseFloat(key), "y": val/n});
+                hc_data.push({"x": parseFloat(key), "y": val/numarVariabile});
             }
 
             // Sort
@@ -250,7 +270,9 @@
                     {
                         name: 'Probabilitate Poisson',
                         data: hc_data,
-                        color: "rgba(0, 140, 255, 0.3)"
+                        color: "rgba(0, 140, 255, 0.3)",
+                        //type: "scatter"
+                         type: 'histogram',
                     }
                 ],
 
@@ -270,6 +292,19 @@
                 }
 
             });
+
+            let Xb = (dataMediaEmpirica.reduce((acc, nr) => {
+                return acc + nr;
+            }, 0) / dataMediaEmpirica.length );
+
+            let Xi2 = dataMediaEmpirica.reduce((acc, nr) => {
+                return acc + Math.pow(nr, 2);
+            }, 0);
+            let s2 = ( Xi2 / dataMediaEmpirica.length) - Math.pow(Xb, 2);
+
+            $("#mediaESelectie").text(Xb.toPrecision(2));
+            $("#dispersiaESelectie").text(s2.toPrecision(2));
+            $("#nrdevariabile").text(numarVariabile);
 
             return data;
         }

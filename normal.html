@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
     <style>
         .highcharts-figure, .highcharts-data-table table {
@@ -64,24 +67,62 @@
         </div>
     </nav>
 </header>
-<div class="main container" style="min-height: 80%;">
+<div class="main container mb-4 mt-2" style="min-height: 88vh;">
+    <div class="row">
+        <div class="col-lg-3 mt-4">
+            <div class="bg-light border p-2 mb-4" style="max-height: 90vh;overflow: auto;"><strong>Frecventele N(0.2,3)</strong> :
+                <div id="rezultat">
 
-    <div class="mt-4">
-        <h3 class="">Normala(0.2,3) prin Th. Limita Centrala</h3>
-        <figure class="highcharts-figure">
-            <div id="container"></div>
-        </figure>
-    </div>
-    <div>
-        Avand Z ~ N(0,1).
-        <br>
-        X ~ N(mu, sigma) :  X = mu + sigma * Z
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="mt-4">
+                <h3 class="">Normala(0.2,3) prin Th. Limita Centrala</h3>
+                <div class="mt-4 border bg-light p-2 mb-4">
+                    <div >Media empirica selectie: <span id="mediaESelectie" style="font-weight: bold"></span> </div>
+                    <div >Dispersia empirica selectie: <span id="dispersiaESelectie" style="font-weight: bold"></span></div>
+                    <div> Media teoretica: 0.2 </div>
+                    <div> Dispersia teoretica: 9</div>
+                    <div>nr de variabile generate = <span id="nrdevariabile" style="font-weight: bold"></span></div>
+                </div>
+                <div class="input-group mb-3 mt-4">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Nr maxim de variabile</span>
+                    </div>
+                    <input type="number" id="nrmaxvar" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="100000">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Min</span>
+                    </div>
+                    <input type="number" id="min" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="0">
+                </div>
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Max</span>
+                    </div>
+                    <input type="number" id="max" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="100">
+                </div>
+                <button class="btn btn-primary mt-4 mb-4 " id="regenereaza">Regenereaza</button>
+                <figure class="highcharts-figure">
+                    <div id="container"></div>
+                </figure>
+            </div>
+            <div>
+                Avand Z ~ N(0,1).
+                <br>
+                X ~ N(mu, sigma) :  X = mu + sigma * Z
+            </div>
+        </div>
     </div>
 
-    <div>Mostrele N(0.2,3) :</div>
-    <div id="rezultat">
 
-    </div>
+
+
+
+
 </div>
 
 <footer id="footer" class="footer-1 bg-dark">
@@ -104,136 +145,198 @@
 
 <script>
     $(document).ready(function(){
-        let n = 1000;
-        let step = 1;
-        let max = 10;
-        let min = 0;
-        let data = {};
-        let dataO = {};
+        function genereaza(){
+            let n = $("#nrmaxvar").val() || 100;
+            let step = 1;
+            let max = parseInt($("#max").val()) || 30;
+            let min = parseInt($("#min").val()) || 0;
+            let data = {};
+            let dataO = {};
+            let dataMediaEmpirica = [];
 
-        const LimitaCentrala = (mu, sigma) => {
-            var rand = 0;
-            for (var i = 0; i < 12; i += 1) {
-                rand += Math.random();
-            }
-            // Se calculeaza N(0,1)
-            let X = rand - 6;
+            const N01 = () => {
+                // Se calculeaza N(0,1)
+                let suma = 0.0;
+                let X = 0;
 
-            // Se calculeaza N(mu, sigma)
-            X = mu + ( sigma*X );
-
-            X = X / 10.0 + 0.5; // Translate to 0 -> 1
-
-            X *= max - min; // Stretch to fill range
-            X += min; // offset to mi
-            return X;
-        }
-
-        const round_to_precision = (x, precision) => {
-            var y = +x + (precision === undefined ? 0.5 : precision/2);
-            return y - (y % (precision === undefined ? 1 : +precision));
-        }
-
-        // Seed data with a bunch of 0s
-        for (let j=min; j<= max; j+=step) {
-            data[j] = 0;
-            dataO[j] = 0;
-        }
-
-        // Create n samples between min and max
-        for (i=0; i<n; i+=step) {
-            let rand_num = LimitaCentrala(0.2,3);
-            let rounded = round_to_precision(rand_num, step);
-            data[rounded] += 1;
-
-            let rand_numO = LimitaCentrala(0,1);
-            let roundedO = round_to_precision(rand_numO, step);
-            dataO[roundedO] += 1;
-        }
-
-        let hc_dataMuSigma = [];
-        let hc_dataN01 = [];
-        for (const [key, val] of Object.entries(data)) {
-            hc_dataMuSigma.push({"x": parseFloat(key), "y": val/n});
-        }
-
-        for (const [key, val] of Object.entries(dataO)) {
-            hc_dataN01.push({"x": parseFloat(key), "y": val/n});
-        }
-
-        // Sort
-        hc_dataMuSigma = hc_dataMuSigma.sort(function(a, b){
-            if(a.x < b.x) return -1;
-            if(a.x > b.x) return 1;
-            return 0;
-        });
-        hc_dataN01 = hc_dataN01.sort(function(a, b){
-            if(a.x < b.x) return -1;
-            if(a.x > b.x) return 1;
-            return 0;
-        });
-
-        Highcharts.chart('container', {
-
-
-            title: {
-                text: ''
-            },
-
-            yAxis: {
-                title: {
-                    text: 'Probabilitate'
+                for (var i = 0; i < 12; i += 1) {
+                    let r = Math.random()
+                    suma += r;
                 }
-            },
 
-            xAxis: {
-                ordinal: false
-            },
-
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'middle'
-            },
-
-            plotOptions: {
-            },
-
-            series: [{
-                name: 'N(0.2,3)',
-                data: hc_dataMuSigma,
-                color: "rgba(230, 0, 0, 1)"
-            },
-             {
-                 name: 'N(0,1)',
-                 data: hc_dataN01,
-                 color: "rgba(0, 140, 255, 0.3)"
-             }
-            ],
-
-            responsive: {
-                rules: [{
-                    condition: {
-                        maxWidth: 500
-                    },
-                    chartOptions: {
-                        legend: {
-                            layout: 'horizontal',
-                            align: 'center',
-                            verticalAlign: 'bottom'
-                        }
-                    }
-                }]
+                X = ( suma - 6);
+                //if(X > 1 || X < 0) return N01();
+                return X;
             }
 
-        });
+            const LimitaCentrala = (mu, sigma, medie) => {
+                // Se calculeaza N(mu, sigma)
+                let r = N01();
 
-        let dataR = Object.keys(data).map((k) => {
-            if(isNaN(data[k])) return "";
-            return k + "->" + data[k];
-        });
+                let X = mu + ( sigma * r  );
+                let Ox = X;
 
-        $("#rezultat").html(dataR.join("<br>"));
+                X = X/10.0 + 0.5;
+                X *= max - min; // Stretch to fill range
+                X += min; // offset to mi
+                if(  medie ) medie.push(Ox); // adaug pt calculul mediei doar pt N(0.2, 3)
+                return X;
+            }
+
+            const round_to_precision = (x, precision) => {
+                var y = +x + (precision === undefined ? 0.5 : precision/2);
+                return y - (y % (precision === undefined ? 1 : +precision));
+            }
+
+            // Seed data with a bunch of 0s
+            for (let j=min; j<= max; j+=step) {
+                data[j] = 0;
+                dataO[j] = 0;
+            }
+
+            // Creeaza n mostre intre min si max
+            for (i=0; i<n; i+=step) {
+                let rand_num = LimitaCentrala(0.2,3);
+
+                while (rand_num < min || rand_num > max) rand_num = LimitaCentrala(0.2,3, dataMediaEmpirica);
+                let rounded = round_to_precision(rand_num, step);
+
+                if(!isNaN(rounded) /*&& (rounded >= min || rounded <= max)*/  )data[rounded] += 1;
+
+                let rand_numO = LimitaCentrala(0,1);
+
+                while (rand_numO < min || rand_numO > max) rand_numO = LimitaCentrala(0,1);
+
+                let roundedO = round_to_precision(rand_numO, step);
+
+                if(!isNaN(roundedO) /*&& (roundedO >= min || roundedO <= max) */ ) dataO[roundedO] += 1;
+            }
+
+
+            let hc_dataMuSigma = [];
+            let hc_dataN01 = [];
+
+            let nrVarGenerate = Object.keys(data).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 );
+            for (const [key, val] of Object.entries(data)) {
+                if(parseInt(key) > max || parseInt(key) < min) continue;
+                hc_dataMuSigma.push({"x": parseFloat(key), "y": val/nrVarGenerate });
+            }
+
+            let nrVarGenerateO = Object.keys(dataO).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 );
+            for (const [key, val] of Object.entries(dataO)) {
+                if(parseInt(key) > max || parseInt(key) < min) continue;
+                hc_dataN01.push({"x": parseFloat(key), "y": val/nrVarGenerateO });
+            }
+
+            // Sort
+            hc_dataMuSigma = hc_dataMuSigma.sort(function(a, b){
+                if(a.x < b.x) return -1;
+                if(a.x > b.x) return 1;
+                return 0;
+            });
+            hc_dataN01 = hc_dataN01.sort(function(a, b){
+                if(a.x < b.x) return -1;
+                if(a.x > b.x) return 1;
+                return 0;
+            });
+
+            Highcharts.chart('container', {
+
+
+                title: {
+                    text: ''
+                },
+
+                yAxis: {
+                    title: {
+                        text: 'Frecventa in' + n
+                    }
+                },
+
+                xAxis: {
+                    ordinal: false
+                },
+
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle'
+                },
+
+                plotOptions: {
+                },
+
+                series: [{
+                    name: 'N(0.2,3)',
+                    data: hc_dataMuSigma,
+                    color: "rgba(230, 0, 0, 1)",
+                    //type: 'histogram',
+                },
+                    {
+                        name: 'N(0,1)',
+                        data: hc_dataN01,
+                        color: "rgba(0, 140, 255, 0.3)",
+                        //type: 'histogram',
+                    }
+                ],
+
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            legend: {
+                                layout: 'horizontal',
+                                align: 'center',
+                                verticalAlign: 'bottom'
+                            }
+                        }
+                    }]
+                }
+
+            });
+
+            if(Object.keys(data).length <= 1000){
+                let dataR = Object.keys(data).map((k) => {
+                    if(isNaN(data[k])) return "";
+                    return k + "->" + ( data[k] / nrVarGenerate );
+                });
+
+                $("#rezultat").html(dataR.join("<br>"));
+            }
+
+            let totalFrecvente = Object.keys(data).reduce((acc, k) =>  acc + data[k] , 0 ) / nrVarGenerate;
+
+            dataMediaEmpirica = dataMediaEmpirica.filter((e) =>parseFloat(e) >= min && parseFloat(e) <= max);
+
+            let Xb = (dataMediaEmpirica.reduce((acc, nr) => {
+                if(parseFloat(nr) < min || parseFloat(nr) > max) {
+                    console.log(nr);
+                    return acc;
+                }
+                return acc + nr;
+            }, 0) / nrVarGenerate );
+
+            let Xi2 = dataMediaEmpirica.reduce((acc, nr) => {
+                if(parseFloat(nr) < min || parseFloat(nr) > max) {
+                    console.log(nr);
+                    return acc;
+                }
+                return acc + Math.pow(nr, 2);
+            }, 0);
+
+            let dispersiaEmpirica = (( Xi2 / dataMediaEmpirica.length) - Math.pow(Xb, 2) );
+
+            $("#mediaESelectie").text( Xb.toPrecision(2) );
+            $("#dispersiaESelectie").text( dispersiaEmpirica.toPrecision(2));
+            $("#nrdevariabile").text( Object.keys(data).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 ) );
+
+        }
+
+        genereaza();
+
+        $("#regenereaza").on("click", genereaza);
     });
 
 </script>
