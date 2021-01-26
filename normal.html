@@ -68,9 +68,15 @@
     </nav>
 </header>
 <div class="main container-fluid mb-4 mt-2" style="min-height: 88vh;">
-    <div class="row">
+
+    <div class="row continut">
         <div class="col-lg-2 mt-4">
-            <div class="bg-light border p-2 mb-4" style="max-height: 90vh;overflow: auto;"><strong>Frecventele N(0.2,3)</strong> :
+            <div class="bg-light border p-2 mb-4" style="max-height: 90vh;overflow: auto;"><strong>Frecventele N( <span class="mu"></span>,<span class="sigma"></span> )</strong> :
+                <div class="d-flex justify-content-center" >
+                    <div class="spinner-border" role="status" >
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
                 <div id="rezultat">
 
                 </div>
@@ -78,19 +84,32 @@
         </div>
         <div class="col-lg-7">
             <div class="mt-4">
-                <h3 class="">Normala(0.2,3) prin Th. Limita Centrala</h3>
+                <h3 class="">Normala( <span class="mu"></span>,<span class="sigma"></span> ) prin Th. Limita Centrala</h3>
                 <div class="mt-4 border bg-light p-2 mb-4">
                     <div >Media empirica selectie: <span id="mediaESelectie" style="font-weight: bold"></span> </div>
                     <div >Dispersia empirica selectie: <span id="dispersiaESelectie" style="font-weight: bold"></span></div>
-                    <div> Media teoretica: 0.2 </div>
-                    <div> Dispersia teoretica: 9</div>
+                    <div> Media teoretica: <span class="mediat"></span> </div>
+                    <div> Dispersia teoretica: <span class="dispt"></span> </div>
                     <div>nr de variabile generate = <span id="nrdevariabile" style="font-weight: bold"></span></div>
+                </div>
+
+                <div class="input-group mb-3 mt-4">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Mu</span>
+                    </div>
+                    <input type="number" id="mu" class="form-control" aria-label="mu" aria-describedby="basic-addon1" value="0.2">
+                </div>
+                <div class="input-group mb-3 mt-4">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Sigma</span>
+                    </div>
+                    <input type="number" id="sigma" class="form-control" aria-label="mu" aria-describedby="basic-addon1" value="3">
                 </div>
                 <div class="input-group mb-3 mt-4">
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1">Nr maxim de variabile</span>
                     </div>
-                    <input type="number" id="nrmaxvar" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="100000">
+                    <input type="number" id="nrmaxvar" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="1000">
                 </div>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
@@ -109,7 +128,11 @@
                     <br>
                     X ~ N(mu, sigma) :  X = mu + sigma * Z
                 </div>
-
+                <div class="d-flex justify-content-center" style="margin-top: 30px;" >
+                    <div class="spinner-border" role="status" >
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
                 <figure class="highcharts-figure">
                     <div id="container"></div>
                 </figure>
@@ -128,11 +151,6 @@
             <button class="btn btn-primary mt-4 mb-4 " id="regenereaza">Regenereaza</button>
         </div>
     </div>
-
-
-
-
-
 
 </div>
 
@@ -156,7 +174,13 @@
 
 <script>
     $(document).ready(function(){
+        $("#rezultat").hide();
+        $(".highcharts-figure").hide();
         function genereaza(){
+            $(".spinner-border").show();
+            $("#rezultat").hide();
+            $(".highcharts-figure").hide();
+
             let n = $("#nrmaxvar").val() || 100;
             let step = 1;
             let max = parseInt($("#max").val()) || 30;
@@ -174,24 +198,25 @@
                     let r = Math.random()
                     suma += r;
                 }
-
                 X = ( suma - 6);
-                //if(X > 1 || X < 0) return N01();
+
                 return X;
             }
 
-            const LimitaCentrala = (mu, sigma, medie) => {
+            const LimitaCentrala = (mu, sigma, medieArray) => {
+                // Se calculeaza N(0, 1)
+                let Z = N01();
                 // Se calculeaza N(mu, sigma)
-                let r = N01();
-
-                let X = mu + ( sigma * r  );
+                let X = mu + ( sigma * Z  );
                 let Ox = X;
 
                 X = X/10.0 + 0.5;
                 X *= max - min; // Stretch to fill range
-                X += min; // offset to mi
-                if(  medie ) medie.push(Ox); // adaug pt calculul mediei doar pt N(0.2, 3)
-                return X;
+                X += min; // offset to min
+                return {
+                    X: X,
+                    Ox : Ox
+                }
             }
 
             const round_to_precision = (x, precision) => {
@@ -207,20 +232,37 @@
 
             // Creeaza n mostre intre min si max
             for (i=0; i<n; i+=step) {
-                let rand_num = LimitaCentrala(0.2,3);
+                let mu = parseFloat($("#mu").val());
+                let sigma = parseFloat($("#sigma").val());
+                $(".mu").text(mu);
+                $(".sigma").text(sigma);
 
-                while (rand_num < min || rand_num > max) rand_num = LimitaCentrala(0.2,3, dataMediaEmpirica);
+                $(".mediat").text(mu);
+                $(".dispt").text(Math.pow(sigma, 2));
+
+                let rand_num = min - 10;
+                let lm = null;
+                do {
+                    lm = LimitaCentrala(mu, sigma)
+                    rand_num = lm.X;
+                } while (rand_num < min || rand_num > max)
+
+                dataMediaEmpirica.push( lm.Ox );
+
                 let rounded = round_to_precision(rand_num, step);
 
-                if(!isNaN(rounded) /*&& (rounded >= min || rounded <= max)*/  )data[rounded] += 1;
+                /*if(!isNaN(rounded) )*/ data[rounded] += 1;
 
-                let rand_numO = LimitaCentrala(0,1);
-
-                while (rand_numO < min || rand_numO > max) rand_numO = LimitaCentrala(0,1);
+                let rand_numO = min - 10;
+                let lmO = null;
+                do {
+                    lmO = LimitaCentrala(0, 1);
+                    rand_numO = lmO.X;
+                } while (rand_num < min || rand_num > max)
 
                 let roundedO = round_to_precision(rand_numO, step);
 
-                if(!isNaN(roundedO) /*&& (roundedO >= min || roundedO <= max) */ ) dataO[roundedO] += 1;
+                if(!isNaN(roundedO)  ) dataO[roundedO] += 1;
             }
 
 
@@ -228,6 +270,7 @@
             let hc_dataN01 = [];
 
             let nrVarGenerate = Object.keys(data).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 );
+
             for (const [key, val] of Object.entries(data)) {
                 if(parseInt(key) > max || parseInt(key) < min) continue;
                 hc_dataMuSigma.push({"x": parseFloat(key), "y": val/nrVarGenerate });
@@ -308,6 +351,7 @@
 
             });
 
+
             if(Object.keys(data).length <= 1000){
                 let dataR = Object.keys(data).map((k) => {
                     if(isNaN(data[k])) return "";
@@ -315,6 +359,7 @@
                 });
 
                 $("#rezultat").html(dataR.join("<br>"));
+
             }
 
             let totalFrecvente = Object.keys(data).reduce((acc, k) =>  acc + data[k] , 0 ) / nrVarGenerate;
@@ -342,6 +387,14 @@
             $("#mediaESelectie").text( Xb.toPrecision(2) );
             $("#dispersiaESelectie").text( dispersiaEmpirica.toPrecision(2));
             $("#nrdevariabile").text( Object.keys(data).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 ) );
+
+
+            setTimeout(() => {
+                $(".spinner-border").hide();
+                $("#rezultat").show();
+                $(".highcharts-figure").show();
+
+            }, 1000);
 
         }
 
