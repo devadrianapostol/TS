@@ -32,19 +32,19 @@
 </header>
 <div class="main container-fluid" style="min-height: 80%;">
     <div class="row">
-        <div class="col-lg-2">
-            <div class="mt-4 border bg-light p-2">
+        <div class="col-lg-2 mt-4">
+            <div class=" border bg-light p-2">
                 <div >Media empirica selectie: <span id="mediaESelectie" style="font-weight: bold"></span> </div>
                 <div >Dispersia empirica selectie: <span id="dispersiaESelectie" style="font-weight: bold"></span></div>
                 <div>nr de variabile = <span id="nrdevariabile" style="font-weight: bold"></span></div>
             </div>
-            <div class="bg-light border p-2 mb-4 mt-4"><strong>Frecventele Poisson generate:</strong> :
+            <div class="bg-light border p-2 mb-4 mt-4" style="max-height: 90vh;overflow: auto;"><strong>Frecventele Poisson generate:</strong> :
                 <div id="rezultat">
 
                 </div>
             </div>
         </div>
-        <div class="col-lg-8">
+        <div class="col-lg-8 ">
             <div class="mt-4">
                 <h3 class="">Poisson</h3>
                 <figure class="highcharts-figure">
@@ -255,7 +255,7 @@
                 dataMediaEmpirica.push(rounded);
                 data[rounded] += 1;
             }
-            let nrVarGenerate = Object.keys(data).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 );
+
 
             let hc_data = [];
             for (const [key, val] of Object.entries(data)) {
@@ -332,7 +332,7 @@
             }, 0) || [].length;
 
             let s2 = ( Xi2 / dataMediaEmpirica.length) - Math.pow(Xb, 2) || 0;
-
+            let nrVarGenerate = Object.keys(data).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 );
             $("#mediaESelectie").text(Xb.toPrecision(2));
             $("#dispersiaESelectie").text(s2.toPrecision(2));
             $("#nrdevariabile").text(nrVarGenerate);
@@ -359,6 +359,7 @@
                 let lambda1 = parseFloat($("#lambda1").val());
                 if(lambda1){
                     let res = genereaza(lambda1, "poisson1", null);
+                    let nrVarGenerate = Object.keys(res).reduce((acc, k) => parseInt(res[k]) > 0 ? acc + res[k] : acc, 0 );
                     let data = Object.keys(res).map((k) => {
                         if(isNaN(res[k])) return "";
                        return k + "->" + + ( res[k] / nrVarGenerate );
@@ -372,6 +373,7 @@
                 let lambda2 = parseFloat($("#lambda2").val());
                 if(p && lambda2){
                     let res = genereaza(lambda2, "poisson2", p);
+                    let nrVarGenerate = Object.keys(res).reduce((acc, k) => parseInt(res[k]) > 0 ? acc + res[k] : acc, 0 );
                     let data = Object.keys(res).map((k) => {
                         if(isNaN(res[k])) return "";
                         return k + "->" + ( res[k] / nrVarGenerate );
