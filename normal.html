@@ -109,7 +109,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1">Nr maxim de variabile</span>
                     </div>
-                    <input type="number" id="nrmaxvar" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="1000">
+                    <input type="number" id="nrmaxvar" class="form-control" aria-label="lambda" aria-describedby="basic-addon1" value="10000">
                 </div>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
@@ -210,7 +210,7 @@
                 let X = mu + ( sigma * Z  );
                 let Ox = X;
 
-                X = X/10.0 + 0.5;
+                X = Ox/10.0 + 0.5;
                 X *= max - min; // Stretch to fill range
                 X += min; // offset to min
                 return {
@@ -242,10 +242,10 @@
 
                 let rand_num = min - 10;
                 let lm = null;
-                do {
+                /*do {*/
                     lm = LimitaCentrala(mu, sigma)
                     rand_num = lm.X;
-                } while (rand_num < min || rand_num > max)
+                /*} while (rand_num < min || rand_num > max)*/
 
                 dataMediaEmpirica.push( lm.Ox );
 
@@ -258,7 +258,7 @@
                 do {
                     lmO = LimitaCentrala(0, 1);
                     rand_numO = lmO.X;
-                } while (rand_num < min || rand_num > max)
+                } while (rand_numO < min || rand_numO > max)
 
                 let roundedO = round_to_precision(rand_numO, step);
 
@@ -364,27 +364,17 @@
 
             let totalFrecvente = Object.keys(data).reduce((acc, k) =>  acc + data[k] , 0 ) / nrVarGenerate;
 
-            dataMediaEmpirica = dataMediaEmpirica.filter((e) =>parseFloat(e) >= min && parseFloat(e) <= max);
-
             let Xb = (dataMediaEmpirica.reduce((acc, nr) => {
-                if(parseFloat(nr) < min || parseFloat(nr) > max) {
-                    console.log(nr);
-                    return acc;
-                }
-                return acc + nr;
+                return acc + (nr);
             }, 0) / nrVarGenerate );
 
             let Xi2 = dataMediaEmpirica.reduce((acc, nr) => {
-                if(parseFloat(nr) < min || parseFloat(nr) > max) {
-                    console.log(nr);
-                    return acc;
-                }
-                return acc + Math.pow(nr, 2);
+                return acc + Math.pow((nr), 2);
             }, 0);
 
             let dispersiaEmpirica = (( Xi2 / dataMediaEmpirica.length) - Math.pow(Xb, 2) );
 
-            $("#mediaESelectie").text( Xb.toPrecision(2) );
+            $("#mediaESelectie").text( Xb.toPrecision(1) );
             $("#dispersiaESelectie").text( dispersiaEmpirica.toPrecision(2));
             $("#nrdevariabile").text( Object.keys(data).reduce((acc, k) => parseInt(data[k]) > 0 ? acc + data[k] : acc, 0 ) );
 
